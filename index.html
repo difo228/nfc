@@ -1,0 +1,359 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><title>Qazaq Oil · Оценка</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Страница гостя для NFC-меток: одна колонка под палец, крупные смайлы. Служебные экраны — #tags и #results */
+:root{
+  --bg:#F4F6F9;--card:#fff;--ink:#14171C;--ink2:#3A404A;--muted:#5D6470;--line:#E3E7ED;--soft:#EDF0F5;
+  --accent:#0A5FD6;--accent-fg:#fff;--accent-soft:#E3EEFF;--accent-ink:#0B4FB0;
+  --good:#1A7432;--good-soft:#E6F6EA;--warn:#8F5300;--warn-soft:#FFF3E0;--bad:#C2101F;--bad-soft:#FFEBEA;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 8px 24px rgba(20,23,28,.06);
+  --font:Inter,-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1216;--card:#1A1E24;--ink:#F2F4F7;--ink2:#D3D8E0;--muted:#A3AAB5;--line:#2C323B;--soft:#232830;
+  --accent:#3D8BFF;--accent-fg:#06101F;--accent-soft:#16294A;--accent-ink:#9CC3FF;
+  --good:#5BD98A;--good-soft:#16301F;--warn:#FFB84D;--warn-soft:#33260F;--bad:#FF7A70;--bad-soft:#3A1715;
+  --shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1216;--card:#1A1E24;--ink:#F2F4F7;--ink2:#D3D8E0;--muted:#A3AAB5;--line:#2C323B;--soft:#232830;
+  --accent:#3D8BFF;--accent-fg:#06101F;--accent-soft:#16294A;--accent-ink:#9CC3FF;
+  --good:#5BD98A;--good-soft:#16301F;--warn:#FFB84D;--warn-soft:#33260F;--bad:#FF7A70;--bad-soft:#3A1715;
+  --shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 28px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px;min-height:calc(100dvh - 40px)}
+.wrap.wide{max-width:980px;min-height:0}
+/* шапка гостя */
+.bar{display:flex;align-items:center;gap:10px;padding-top:6px}
+.brand{font-weight:800;font-size:17px;letter-spacing:-.01em;color:var(--brand,var(--accent))}
+.sp{flex:1}
+.lang{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px}
+.lang button{padding:6px 11px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.place{font-size:13.5px;color:var(--muted)}
+.place b{color:var(--ink2);font-weight:600}
+h1{font-size:27px;line-height:1.18;letter-spacing:-.02em;margin:4px 0 0;text-wrap:balance}
+h2{font-size:19px;margin:0;letter-spacing:-.01em}
+.muted{color:var(--muted)}.small{font-size:13px}
+/* смайлы */
+.faces{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.face{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0 8px;border-radius:16px;transition:transform .12s,background .15s}
+.face svg{width:min(56px,15vw);height:min(56px,15vw)}
+.face span{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.15;font-weight:500}
+.face:active{transform:scale(.92)}
+.face.sel{background:var(--soft)}
+.hint-line{text-align:center;font-size:13px;color:var(--muted);margin-top:auto}
+/* блоки */
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.saved{display:flex;align-items:center;gap:12px}
+.saved .f{width:44px;height:44px;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 14px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);font-size:14px;font-weight:500;text-align:left}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+textarea,.inp{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card);font-size:15px;resize:none}
+textarea:focus,.inp:focus{outline:none;border-color:var(--accent)}
+.btns{display:grid;gap:10px;margin-top:auto;padding-top:6px}
+.btn{width:100%;padding:15px;border-radius:16px;background:var(--accent);color:var(--accent-fg);font-weight:700;font-size:16px}
+.btn.sec{background:var(--soft);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink2)}
+.check input{width:20px;height:20px;margin:1px 0 0;flex:none}
+.thanks{text-align:center;margin:auto 0;display:grid;gap:8px;justify-items:center}
+.thanks .big{font-size:60px;line-height:1}
+.pill{display:inline-flex;padding:5px 11px;border-radius:20px;font-size:13px;font-weight:600}
+.p-good{background:var(--good-soft);color:var(--good)}.p-acc{background:var(--accent-soft);color:var(--accent-ink)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;pointer-events:none;max-width:calc(100% - 32px);z-index:5}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.note{font-size:12px;color:var(--muted);text-align:center}
+/* служебные экраны */
+.top-nav{display:flex;gap:6px;flex-wrap:wrap}
+.top-nav a{padding:8px 12px;border-radius:10px;background:var(--soft);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+.top-nav a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.tag{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tag .ic{font-size:28px}
+.qr{width:150px;height:150px;background:#fff;border-radius:12px;padding:8px;align-self:center}
+.qr svg{width:100%;height:100%;display:block}
+.url{font:12.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;background:var(--soft);border-radius:10px;padding:8px 10px;color:var(--ink2);user-select:all}
+.mini{padding:8px 12px;border-radius:10px;background:var(--soft);font-weight:600;font-size:13.5px}
+.mini.acc{background:var(--accent);color:var(--accent-fg)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.kpi .v{font-size:28px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12.5px;color:var(--muted)}
+.zbar{display:grid;grid-template-columns:110px minmax(0,1fr) 92px;gap:10px;align-items:center;font-size:14px;padding:5px 0}
+.track{height:9px;border-radius:5px;background:var(--soft);overflow:hidden}.track i{display:block;height:100%;border-radius:5px}
+.list{display:grid;gap:0}
+.rv{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.rv:last-child{border-bottom:0}
+.rv .f{width:36px;height:36px}
+.rv .meta{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.empty{padding:28px 8px;text-align:center;color:var(--muted)}
+ol.steps{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14px}
+.seg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 11px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+@media (prefers-reduced-motion:reduce){.face,.toast{transition:none}}
+</style>
+
+<div id="app" class="wrap" aria-live="polite"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+// ===== Настройки =====
+const CONFIG={
+  artifactUrl:'',   // постоянная ссылка на эту страницу (заполняется после публикации); пусто — берём адрес страницы
+  defaultStation:'B-522',  // АЗС, если в ссылке указана только зона
+  endpoint:''              // для своего хостинга: URL веб-приложения Google Apps Script, куда отправлять отзывы (необязательно)
+};
+// АЗС: [номер, бренд, город ru, город kk]
+const STATIONS=[["C-035","Qazaq Oil","Макинск","Макинск"],["C-036","Qazaq Oil","Щучинск","Щучинск"],["C-037","Qazaq Oil","Щучинск","Щучинск"],["C-038","Qazaq Oil","Атбасар","Атбасар"],["C-039","Qazaq Oil","Есиль","Есіл"],["C-040","Qazaq Oil","Кокшетау","Көкшетау"],["C-041","Qazaq Oil","Кокшетау","Көкшетау"],["C-043","Qazaq Oil","Зерендинский р-н","Зеренді ауданы"],["C-045","Qazaq Oil","трасса Кокшетау – Астана","Көкшетау – Астана тас жолы"],["C-047","Qazaq Oil","Кокшетау","Көкшетау"],["C-048","Qazaq Oil","Щучинск","Щучинск"],["C-550","Gazenergy","Щучинск","Щучинск"],["P-060","Qazaq Oil","Костанай","Қостанай"],["P-061","Qazaq Oil","Костанай","Қостанай"],["P-062","Qazaq Oil","Аулиеколь","Әулиекөл"],["P-063","Qazaq Oil","Лисаковск","Лисаков"],["P-064","Qazaq Oil","Рудный","Рудный"],["T-051","Qazaq Oil","Аккудук","Аққұдық"],["T-052","Qazaq Oil","Келлеровка","Келлеровка"],["D-257","Qazaq Oil","Актобе","Ақтөбе"],["D-258","Qazaq Oil","Актобе","Ақтөбе"],["D-259","Qazaq Oil","Актобе","Ақтөбе"],["D-260","Qazaq Oil","Актобе","Ақтөбе"],["D-261","Qazaq Oil","Актобе","Ақтөбе"],["D-262","Qazaq Oil","Хромтау","Хромтау"],["D-267","Qazaq Oil","Актобе","Ақтөбе"],["D-268","Qazaq Oil","Кобда","Қобда"],["D-271","Qazaq Oil","Актобе","Ақтөбе"],["D-272","Qazaq Oil","Актобе","Ақтөбе"],["D-273","Qazaq Oil","Актобе","Ақтөбе"],["D-274","Qazaq Oil","Актобе","Ақтөбе"],["D-275","Qazaq Oil","Карабутак","Қарабұтақ"],["D-276","Qazaq Oil","Комсомольское","Комсомол"],["D-277","Qazaq Oil","Айке","Әйке"],["D-388","Qazaq Oil","Жайсан","Жайсаң"],["D-420","Qazaq Oil","Актобе","Ақтөбе"],["D-421","Qazaq Oil","Актобе","Ақтөбе"],["D-422","Qazaq Oil","Актобе","Ақтөбе"],["D-423","Qazaq Oil","Актобе","Ақтөбе"],["D-424","Меркурий","Актобе","Ақтөбе"],["D-425","Qazaq Oil","Алга","Алға"],["D-477","Gazenergy","Иргиз","Ырғыз"],["D-478","Gazenergy","Жайсан","Жайсаң"],["D-479","Gazenergy","Актобе","Ақтөбе"],["E-225","Qazaq Oil","Атырау","Атырау"],["E-226","Qazaq Oil","Атырау","Атырау"],["E-227","No name","Доссор","Доссор"],["E-228","Qazaq Oil","Махаметский р-н","Махамбет ауданы"],["E-229","Qazaq Oil","Атырау","Атырау"],["E-230","Qazaq Oil","Атырау","Атырау"],["E-231","Qazaq Oil","Атырау","Атырау"],["E-232","Qazaq Oil","Атырау","Атырау"],["E-233","Qazaq Oil","Атырау","Атырау"],["E-236","Qazaq Oil","Атырау","Атырау"],["E-237","Qazaq Oil","Кульсары","Құлсары"],["E-238","Qazaq Oil","Елтай","Елтай"],["E-239","Qazaq Oil","Кадырка","Қадырқа"],["E-240","Qazaq Oil","Атырау","Атырау"],["E-241","Qazaq Oil","Сагиз","Сағыз"],["E-242","No name","Аккистау","Аққыстау"],["E-308","Qazaq Oil","Кульсары","Құлсары"],["E-309","Qazaq Oil","Атырау","Атырау"],["E-312","Qazaq Oil","Атырау","Атырау"],["E-314","Qazaq Oil","Атырау","Атырау"],["E-316","Qazaq Oil","Атырау","Атырау"],["E-412","Меркурий","Атырау","Атырау"],["E-413","Qazaq Oil","Атырау","Атырау"],["E-414","Qazaq Oil","Атырау","Атырау"],["E-415","Qazaq Oil","Атырау","Атырау"],["E-416","Qazaq Oil","Атырау","Атырау"],["E-417","Qazaq Oil","Атырау","Атырау"],["E-418","Меркурий","Атырау","Атырау"],["E-419","Меркурий","Атырау","Атырау"],["E-431","Меркурий","Тенгиз","Теңіз"],["E-432","Меркурий","Атырау","Атырау"],["R-244","Qazaq Oil","Актау","Ақтау"],["R-245","Qazaq Oil","Актау","Ақтау"],["R-246","Qazaq Oil","Актау","Ақтау"],["R-247","Qazaq Oil","Шетпе","Шетпе"],["R-248","Qazaq Oil","Бейнеу","Бейнеу"],["R-254","Qazaq Oil","Актау","Ақтау"],["R-256","Qazaq Oil","Жанаозен","Жаңаөзен"],["R-320","Qazaq Oil","Актау","Ақтау"],["R-321","Qazaq Oil","Актау","Ақтау"],["F-109","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-110","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-111","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-112","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-113","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-114","Qazaq Oil","Зайсан","Зайсан"],["F-115","Qazaq Oil","Семей","Семей"],["F-116","Qazaq Oil","Семей","Семей"],["F-117","No name","Семей","Семей"],["F-118","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-119","Qazaq Oil","Усть-Каменогорск","Өскемен"],["F-120","Qazaq Oil","Риддер","Риддер"],["F-121","Qazaq Oil","Шемонаиха","Шемонаиха"],["F-122","Qazaq Oil","Калбатау","Қалбатау"],["F-123","Qazaq Oil","Аягоз","Аягөз"],["F-124","Qazaq Oil","Таскескен","Тасқескен"],["F-126","No name","Кокпекты","Көкпекті"],["F-127","Qazaq Oil","Жантикей","Жантікей"],["F-129","Qazaq Oil","Шар","Шар"],["F-130","Qazaq Oil","Семей","Семей"],["F-131","Qazaq Oil","Семей","Семей"],["F-132","Qazaq Oil","Дмитриевка","Дмитриевка"],["F-133","Qazaq Oil","Большая Владимировка","Үлкен Владимировка"],["F-449","Qazaq Oil","Самарское","Самар"],["A-136","Qazaq Oil","Алматы","Алматы"],["A-137","Qazaq Oil","Алматы","Алматы"],["A-138","Qazaq Oil","Алматы","Алматы"],["A-140","Qazaq Oil","Алматы","Алматы"],["A-141","Qazaq Oil","Алматы","Алматы"],["A-143","Qazaq Oil","Алматы","Алматы"],["A-144","Qazaq Oil","Алматы","Алматы"],["A-145","Qazaq Oil","Алматы","Алматы"],["A-146","Qazaq Oil","Алматы","Алматы"],["A-147","Qazaq Oil","Алматы","Алматы"],["A-150","Qazaq Oil","Алматы","Алматы"],["A-151","Qazaq Oil","Алматы","Алматы"],["A-152","Qazaq Oil","Алматы","Алматы"],["A-153","Qazaq Oil","Алматы","Алматы"],["A-154","Qazaq Oil","Алматы","Алматы"],["A-157","Qazaq Oil","Алматы","Алматы"],["A-158","Qazaq Oil","Алматы","Алматы"],["A-468","Qazaq Oil","Алматы","Алматы"],["A-471","Qazaq Oil","Алматы","Алматы"],["A-512","Gazenergy","Алматы","Алматы"],["A-516","Gazenergy","Алматы","Алматы"],["A-517","Gazenergy","Алматы","Алматы"],["B-160","Qazaq Oil","Талдыкорган","Талдықорған"],["B-161","Qazaq Oil","Алакольский р-н","Алакөл ауданы"],["B-162","No name","Алакольский р-н","Алакөл ауданы"],["B-163","Qazaq Oil","Ушарал","Үшарал"],["B-165","Qazaq Oil","Талдыкорган","Талдықорған"],["B-171","Qazaq Oil","Алматы","Алматы"],["B-175","Qazaq Oil","Алматы","Алматы"],["B-176","Qazaq Oil","Алматы","Алматы"],["B-177","Qazaq Oil","Шамалган","Шамалған"],["B-178","Qazaq Oil","Райымбек","Райымбек"],["B-179","Qazaq Oil","Каскелен","Қаскелең"],["B-181","Qazaq Oil","Чапаево","Чапаево"],["B-183","Qazaq Oil","Конаев","Қонаев"],["B-184","Qazaq Oil","Конаев","Қонаев"],["B-187","No name","Талгарский р-н","Талғар ауданы"],["B-190","Qazaq Oil","Алматы","Алматы"],["B-191","Qazaq Oil","Енбекшиказахский р-н","Еңбекшіқазақ ауданы"],["B-192","Qazaq Oil","Мухаметжана Туймебаева","Мұхаметжан Түймебаев"],["B-193","Qazaq Oil","Боралдай","Боралдай"],["B-194","Qazaq Oil","Нургиса Тлендиева","Нұрғиса Тілендиев"],["B-195","Qazaq Oil","Жамбылский р-н","Жамбыл ауданы"],["B-196","Qazaq Oil","Кеген","Кеген"],["B-197","Qazaq Oil","Саркан","Сарқан"],["B-198","Qazaq Oil","Илийский р-н","Іле ауданы"],["B-296","No name","Талдыкорган","Талдықорған"],["B-446","Qazaq Oil","Достык","Достық"],["B-511","Gazenergy","Иргели","Іргелі"],["B-513","Gazenergy","Бесагаш","Бесағаш"],["B-514","Gazenergy","Туздыбастау","Тұздыбастау"],["B-515","Gazenergy","Каскелен","Қаскелең"],["B-519","Gazenergy","Шолакай","Шолақай"],["B-520","Gazenergy","Шелек","Шелек"],["B-521","Gazenergy","Жалпаксай","Жалпақсай"],["B-522","Gazenergy","Шелек","Шелек"],["C-030","Qazaq Oil","Астраханка","Астраханка"],["C-031","Qazaq Oil","Шортанды","Шортанды"],["C-033","Qazaq Oil","Степногорск","Степногорск"],["C-034","Qazaq Oil","Аккольский р-н","Ақкөл ауданы"],["S-017","Qazaq Oil","Павлодар","Павлодар"],["S-018","Qazaq Oil","Павлодар","Павлодар"],["S-019","Qazaq Oil","Павлодар","Павлодар"],["S-020","No name","Павлодар","Павлодар"],["S-021","Qazaq Oil","Павлодар","Павлодар"],["S-022","Qazaq Oil","Экибастуз","Екібастұз"],["S-023","Qazaq Oil","Ленинский","Ленинский"],["S-024","Qazaq Oil","Аққулы","Аққулы"],["S-025","Qazaq Oil","Павлодар","Павлодар"],["S-026","Qazaq Oil","Теренколь","Тереңкөл"],["S-027","Qazaq Oil","Железинка","Железинка"],["S-028","Qazaq Oil","Ковалевка","Ковалевка"],["S-029","Qazaq Oil","Экибастуз","Екібастұз"],["S-451","Qazaq Oil","Экибастуз","Екібастұз"],["S-534","ГПН","Павлодар","Павлодар"],["S-535","ГПН","Павлодар","Павлодар"],["S-536","ГПН","Павлодар","Павлодар"],["S-537","ГПН","Павлодар","Павлодар"],["S-538","ГПН","Павлодар","Павлодар"],["Z-001","Qazaq Oil","Астана","Астана"],["Z-003","Qazaq Oil","Астана","Астана"],["Z-004","Qazaq Oil","Астана","Астана"],["Z-005","Qazaq Oil","Астана","Астана"],["Z-006","Qazaq Oil","Астана","Астана"],["Z-007","Qazaq Oil","Астана","Астана"],["Z-008","Qazaq Oil","Астана","Астана"],["Z-009","Qazaq Oil","Астана","Астана"],["Z-010","Qazaq Oil","Астана","Астана"],["Z-011","Qazaq Oil","Астана","Астана"],["Z-012","Qazaq Oil","Астана","Астана"],["Z-013","Qazaq Oil","Астана","Астана"],["Z-014","Qazaq Oil","Астана","Астана"],["Z-015","Qazaq Oil","Астана","Астана"],["Z-016","Qazaq Oil","Астана","Астана"],["Z-300","Qazaq Oil","Астана","Астана"],["Z-303","Qazaq Oil","Астана","Астана"],["Z-313","Qazaq Oil","Астана","Астана"],["Z-441","Qazaq Oil","Астана","Астана"],["Z-501","Gazenergy","Астана","Астана"],["Z-502","Gazenergy","Астана","Астана"],["Z-503","Gazenergy","Астана","Астана"],["Z-505","Gazenergy","Астана","Астана"],["Z-506","Gazenergy","Астана","Астана"],["Z-507","Gazenergy","Астана","Астана"],["Z-508","Gazenergy","Астана","Астана"],["Z-509","Gazenergy","Астана","Астана"],["Z-510","Gazenergy","Астана","Астана"],["Z-539","Gazenergy","Астана","Астана"],["H-199","Qazaq Oil","Кордай","Қордай"],["H-200","Qazaq Oil","Тараз","Тараз"],["H-202","Qazaq Oil","Тараз","Тараз"],["H-203","Qazaq Oil","Костобе","Қостөбе"],["H-207","Qazaq Oil","Жамбылский р-н","Жамбыл ауданы"],["H-208","Qazaq Oil","Актоган","Ақтоған"],["H-209","Qazaq Oil","Бурыл-Байтал","Бурылбайтал"],["H-391","Qazaq Oil","Кокбастау","Көкбастау"],["H-481","Gazenergy","Улгили","Өлгілі"],["H-482","Gazenergy","Жамбыл","Жамбыл"],["H-483","Gazenergy","Айшабиби","Айша бибі"],["H-518","Gazenergy","Кенен","Кенен"],["N-211","Qazaq Oil","Кызылорда","Қызылорда"],["N-217","Qazaq Oil","Кызылорда","Қызылорда"],["N-218","Qazaq Oil","Кызылорда","Қызылорда"],["N-219","Qazaq Oil","Кызылорда","Қызылорда"],["N-389","Qazaq Oil","Кызылорда","Қызылорда"],["N-392","Qazaq Oil","Аральск","Арал"],["N-393","Qazaq Oil","Жосалы","Жосалы"],["N-489","Gazenergy","Кызылорда","Қызылорда"],["N-490","Gazenergy","Кызылорда","Қызылорда"],["N-491","Gazenergy","Жайылма","Жайылма"],["N-492","Gazenergy","Кызылорда","Қызылорда"],["N-493","Gazenergy","Шижага","Шижаға"],["N-494","Gazenergy","Кызылорда","Қызылорда"],["X-220","Qazaq Oil","Шымкент","Шымкент"],["X-222","Qazaq Oil","Туркестан","Түркістан"],["X-224","Qazaq Oil","Сарыагаш","Сарыағаш"],["X-390","Qazaq Oil","Екпинди","Екпінді"],["X-495","Gazenergy","Шымкент","Шымкент"],["X-496","Gazenergy","Шымкент","Шымкент"],["X-497","Gazenergy","Шымкент","Шымкент"],["X-498","Gazenergy","Келесский р-н","Келес ауданы"],["X-499","Gazenergy","Шымкент","Шымкент"],["X-500","Gazenergy","Шымкент","Шымкент"],["L-278","Qazaq Oil","Уральск","Орал"],["L-279","Qazaq Oil","Уральск","Орал"],["L-281","Qazaq Oil","Уральск","Орал"],["L-282","Qazaq Oil","Уральск","Орал"],["L-283","Qazaq Oil","Уральск","Орал"],["L-285","Qazaq Oil","Уральск","Орал"],["L-286","Qazaq Oil","р-н Бәйтерек","Бәйтерек ауданы"],["L-287","Qazaq Oil","Акжаикский р-н","Ақжайық ауданы"],["L-288","Qazaq Oil","Жымпиты","Жымпиты"],["L-289","Qazaq Oil","Уральск","Орал"],["L-290","Qazaq Oil","Уральск","Орал"],["L-293","Qazaq Oil","Погодаево","Погодаево"],["L-480","Gazenergy","Бейбітшілік","Бейбітшілік"],["M-067","Qazaq Oil","Балхаш","Балқаш"],["M-068","Qazaq Oil","Караганда","Қарағанды"],["M-071","No name","Темиртау","Теміртау"],["M-073","Qazaq Oil","Караганда","Қарағанды"],["M-074","No name","Караганда","Қарағанды"],["M-076","Qazaq Oil","Караганда","Қарағанды"],["M-079","Qazaq Oil","Тузды","Тұзды"],["M-080","Qazaq Oil","Сарань","Саран"],["M-083","Qazaq Oil","Караганда","Қарағанды"],["M-085","No name","Темиртау","Теміртау"],["M-086","Qazaq Oil","Бухар-Жырауский р-н","Бұқар жырау ауданы"],["M-088","Qazaq Oil","Караганда","Қарағанды"],["M-092","Qazaq Oil","Новоузенка","Новоузенка"],["M-093","Qazaq Oil","Караганда","Қарағанды"],["M-095","Qazaq Oil","Атасу","Атасу"],["M-096","Qazaq Oil","Жезказган","Жезқазған"],["M-097","Qazaq Oil","Жезказган","Жезқазған"],["M-099","Qazaq Oil","Сатпаев","Сәтбаев"],["M-100","Qazaq Oil","Жезказган","Жезқазған"],["M-104","Qazaq Oil","Караганда","Қарағанды"],["M-105","No name","Сарышаган","Сарышаған"],["M-106","Qazaq Oil","Каркаралинск","Қарқаралы"],["M-107","No name","Шетский р-н","Шет ауданы"],["M-447","Qazaq Oil","Акчатау","Ақшатау"],["M-466","Qazaq Oil","Караганда","Қарағанды"],["M-484","Gazenergy","Дубовка","Дубовка"],["M-485","Gazenergy","Караганда","Қарағанды"],["M-486","Gazenergy","Караганда","Қарағанды"],["M-487","Gazenergy","Караганда","Қарағанды"],["M-488","Gazenergy","Атамекен","Атамекен"],["M-530","Gazenergy","Балхаш","Балқаш"],["T-049","Qazaq Oil","Кызылжарский р-н","Қызылжар ауданы"],["T-050","Qazaq Oil","Прибрежное","Прибрежное"],["T-056","Qazaq Oil","Покровка","Покровка"],["T-058","No name","Белое","Белое"],["T-059","Qazaq Oil","р-н М. Жумабаева","Мағжан Жұмабаев ауданы"],["T-310","Qazaq Oil","Петропавловск","Петропавл"],["T-325","Qazaq Oil","Петропавловск","Петропавл"],["T-326","Qazaq Oil","Петропавловск","Петропавл"],["T-328","Qazaq Oil","Петропавловск","Петропавл"],["T-329","Qazaq Oil","Петропавловск","Петропавл"],["T-330","Qazaq Oil","Петропавловск","Петропавл"],["T-331","Qazaq Oil","Петропавловск","Петропавл"]];
+const ST=Object.fromEntries(STATIONS.map(s=>[s[0],s]));
+// цвет бренда: [светлая тема, тёмная тема] — контраст AA на обоих фонах
+const BRAND_COL={'Qazaq Oil':['#0A60E0','#5AA9FF'],'Gazenergy':['#0E7F3F','#45D483'],'Меркурий':['#B03A0A','#FF8A57'],'ГПН':['#0B57A3','#6FB0F5']};
+const isDark=()=>{const a=document.documentElement.getAttribute('data-theme');return a?a==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+
+// ===== Тексты =====
+const I={ru:{
+  'face':['Ужасно','Плохо','Нормально','Хорошо','Отлично'],
+  'z.kassa':'Касса','z.fuel':'Заправщик','z.exit':'Выход из зала','z.wc':'Туалет',
+  'q.kassa':'Как вас обслужили на кассе?','q.fuel':'Как вас обслужил заправщик?','q.exit':'Как вам АЗС в целом?','q.wc':'Как вам чистота туалета?',
+  oneTap:'Одно касание — оценка сохранится сразу',saved:'Оценка сохранена',optional:'Дальше — по желанию',
+  whatWrong:'Что не так?',whatGood:'Что понравилось?',commentPh:'Комментарий (необязательно)',send:'Отправить',skip:'Пропустить',
+  contactQ:'Хотите, чтобы управляющий связался с вами?',phoneOnly:'Телефон — только если хотите сами.',yes:'Да, свяжитесь со мной',noThanks:'Нет, спасибо',
+  phoneLbl:'Номер телефона',consent:'Согласен на обработку персональных данных — только чтобы связаться по этому отзыву',
+  thanks:'Спасибо!',seen:'Управляющий АЗС увидит ваш отзыв сегодня',callback:'Управляющий вам перезвонит',again:'Оценить ещё раз',
+  toastSaved:'Оценка сохранена',notSaved:'Тестовый режим: отзыв не сохранён на сервере — эта страница сохраняет отзывы только для вошедших пользователей с правом участника.',
+  nostation:'Метка не настроена: в ссылке нет зоны. Откройте раздел «Ссылки для меток».',
+  // служебные
+  navTags:'Ссылки для меток',navRes:'Результаты теста',
+  tagsH:'Ссылки для NFC-меток',tagsSub:'Выберите АЗС — для каждой зоны появится ссылка и QR-код. Запишите ссылку на метку и проверьте касанием телефона.',
+  station:'АЗС',copy:'Копировать',copied:'Ссылка скопирована',copyFail:'Скопируйте ссылку вручную',open:'Открыть',qrLink:'Для QR-кода',
+  howH:'Как записать метку',how:['Установите на Android или iPhone приложение NFC Tools (бесплатное).','Write → Add a record → URL/URI → вставьте ссылку зоны.','Нажмите Write и поднесите телефон к метке.','Проверьте: коснитесь метки другим телефоном — откроется страница оценки.','По желанию: в Other → Lock tag защитите метку от перезаписи.'],
+  noUrl:'Постоянная ссылка ещё не задана — показан адрес этой страницы.',
+  resH:'Результаты теста',resSub:'Отзывы, сохранённые с меток, в реальном времени.',total:'Отзывов',avg:'Средняя оценка',low:'Оценки 1–2',open1:'Не разобрано',
+  byZone:'По зонам',feed:'Последние отзывы',empty:'Пока нет отзывов. Коснитесь метки телефоном — отзыв появится здесь.',
+  noDb:'Результаты видны только владельцу и участникам с доступом на claude.ai. На своём хостинге отзывы уходят в Google Таблицу (см. README).',
+  loading:'Загружаем отзывы…',done:'Разобрано',markDone:'Отметить «разобрано»',showPhone:'Показать телефон',noPhone:'телефон недоступен',
+  all:'Все',src:{nfc:'NFC',qr:'QR',link:'ссылка'},reasons:'причины',noReasons:'без причин',ago:'назад'
+},kk:{
+  'face':['Өте нашар','Нашар','Орташа','Жақсы','Өте жақсы'],
+  'z.kassa':'Касса','z.fuel':'Жанармай құюшы','z.exit':'Залдан шығу','z.wc':'Дәретхана',
+  'q.kassa':'Кассада сізге қалай қызмет көрсетті?','q.fuel':'Жанармай құюшы сізге қалай қызмет көрсетті?','q.exit':'Жанармай бекеті сізге жалпы ұнады ма?','q.wc':'Дәретхананың тазалығы сізге ұнады ма?',
+  oneTap:'Бір рет түртіңіз — баға бірден сақталады',saved:'Баға сақталды',optional:'Қосымша — міндетті емес',
+  whatWrong:'Не ұнамады?',whatGood:'Не ұнады?',commentPh:'Пікір (міндетті емес)',send:'Жіберу',skip:'Өткізіп жіберу',
+  contactQ:'Басқарушы сізбен хабарласқанын қалайсыз ба?',phoneOnly:'Телефонды тек өзіңіз қаласаңыз береміз.',yes:'Иә, хабарласыңыз',noThanks:'Жоқ, рақмет',
+  phoneLbl:'Телефон нөмірі',consent:'Дербес деректерді өңдеуге келісемін — тек осы пікір бойынша хабарласу үшін',
+  thanks:'Рақмет!',seen:'Бекет басқарушысы пікіріңізді бүгін көреді',callback:'Басқарушы сізге хабарласады',again:'Қайта бағалау',
+  toastSaved:'Баға сақталды',notSaved:'Сынақ режимі: пікір серверде сақталмады — бұл бет пікірлерді тек қатысушы құқығы бар кірген пайдаланушылар үшін сақтайды.',
+  nostation:'Белгі бапталмаған: сілтемеде аймақ жоқ. «Белгілерге арналған сілтемелер» бөлімін ашыңыз.',
+  navTags:'Белгілерге арналған сілтемелер',navRes:'Сынақ нәтижелері',
+  tagsH:'NFC-белгілерге арналған сілтемелер',tagsSub:'ЖҚС-ты таңдаңыз — әр аймаққа сілтеме мен QR-код шығады. Сілтемені белгіге жазып, телефонмен түртіп тексеріңіз.',
+  station:'ЖҚС',copy:'Көшіру',copied:'Сілтеме көшірілді',copyFail:'Сілтемені қолмен көшіріңіз',open:'Ашу',qrLink:'QR-код үшін',
+  howH:'Белгіні қалай жазу керек',how:['Android немесе iPhone-ға NFC Tools қосымшасын орнатыңыз (тегін).','Write → Add a record → URL/URI → аймақ сілтемесін қойыңыз.','Write басып, телефонды белгіге жақындатыңыз.','Тексеріңіз: белгіні басқа телефонмен түртіңіз — бағалау беті ашылады.','Қаласаңыз: Other → Lock tag арқылы белгіні қайта жазудан қорғаңыз.'],
+  noUrl:'Тұрақты сілтеме әлі берілмеген — осы беттің мекенжайы көрсетілген.',
+  resH:'Сынақ нәтижелері',resSub:'Белгілерден сақталған пікірлер нақты уақытта.',total:'Пікірлер',avg:'Орташа баға',low:'1–2 бағалар',open1:'Талданбаған',
+  byZone:'Аймақтар бойынша',feed:'Соңғы пікірлер',empty:'Әзірге пікір жоқ. Белгіні телефонмен түртіңіз — пікір осында шығады.',
+  noDb:'Нәтижелерді claude.ai-да тек иесі мен қатысушылар көреді. Өз хостингіңізде пікірлер Google Кестесіне жіберіледі (README қараңыз).',
+  loading:'Пікірлерді жүктеп жатырмыз…',done:'Талданды',markDone:'«Талданды» деп белгілеу',showPhone:'Телефонды көрсету',noPhone:'телефон қолжетімсіз',
+  all:'Барлығы',src:{nfc:'NFC',qr:'QR',link:'сілтеме'},reasons:'себептер',noReasons:'себепсіз',ago:'бұрын'
+}};
+// причины по зонам: [ключ, ru, kk]
+const CH={
+  kassa:{low:[['wait','Долго ждал','Ұзақ күттім'],['rude','Невежливо','Сыпайы емес'],['check','Ошибка в чеке','Чекте қате'],['nogoods','Нет товара','Тауар жоқ']],high:[['fast','Быстро','Жылдам'],['polite','Вежливо','Сыпайы'],['atm','Приятная атмосфера','Жағымды атмосфера']]},
+  fuel:{low:[['nooperator','Заправщик не подошёл','Жанармай құюшы келмеді'],['nopump','Не назвал колонку и топливо','Колонка мен отынды айтпады'],['underfill','Недолив','Толық құймады'],['rude','Невежливо','Сыпайы емес']],high:[['fast','Быстро','Жылдам'],['polite','Вежливо','Сыпайы'],['helpful','Предложил помыть стекло','Әйнекті жууды ұсынды']]},
+  exit:{low:[['queue','Долгая очередь','Ұзақ кезек'],['nogoods','Нет товара','Тауар жоқ'],['hall','Грязно в зале','Залда лас'],['staff','Персонал невнимателен','Қызметкерлер немқұрайлы']],high:[['fast','Быстро','Жылдам'],['polite','Вежливо','Сыпайы'],['clean','Чисто','Таза'],['atm','Приятная атмосфера','Жағымды атмосфера']]},
+  wc:{low:[['paper','Нет бумаги','Қағаз жоқ'],['soap','Нет мыла','Сабын жоқ'],['dirty','Грязно','Лас'],['smell','Запах','Иіс бар'],['closed','Туалет закрыт','Дәретхана жабық'],['paidwhy','Платно и не объяснили','Ақылы, түсіндірмеді']],high:[['clean','Чисто','Таза'],['allok','Всё есть','Бәрі бар'],['atm','Приятная атмосфера','Жағымды атмосфера']]}
+};
+const ZONES=['kassa','fuel','exit','wc'],ZIC={kassa:'🧾',fuel:'⛽',exit:'🚪',wc:'🚻'};
+const chipName=(z,k,l)=>{for(const g of['low','high'])for(const c of CH[z][g])if(c[0]===k)return l==='kk'?c[2]:c[1];return k};
+
+// ===== Состояние =====
+let LANG=(()=>{try{const v=localStorage.getItem('g-lang');if(v==='ru'||v==='kk')return v}catch(e){}return /^kk/i.test(navigator.language||'')?'kk':'ru'})();
+const t=k=>I[LANG][k]??I.ru[k];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt1=n=>n.toLocaleString('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
+const G={view:'',station:null,zone:null,src:'link',step:'rate',r:0,chips:[],comment:'',contact:null,phone:'',consent:false,rid:null,stored:null};
+let DB=null,USER=null,UID=null;
+
+// ===== Адрес: #b522-fuel (NFC), #b522-fuel-qr (QR), #fuel (АЗС по умолчанию), #tags, #results; на своём хостинге также ?azs=B-522&zone=fuel =====
+function parseRoute(){
+  const h=decodeURIComponent((location.hash||'').slice(1)).toLowerCase();
+  const q=new URLSearchParams(location.search);
+  if(h==='tags'||h==='results')return{view:h};
+  let st=null,zone=null,src='nfc';
+  const m=h.match(/^(?:([a-z])-?(\d{3})-)?(kassa|fuel|exit|wc)(?:-(qr|nfc))?$/);
+  if(m){zone=m[3];if(m[1])st=m[1].toUpperCase()+'-'+m[2];if(m[4])src=m[4]}
+  else if(q.get('zone')){zone=q.get('zone').toLowerCase();st=(q.get('azs')||'').toUpperCase()||null;src=(q.get('src')||'nfc').toLowerCase()}
+  if(!zone||!ZONES.includes(zone))return{view:h?'none':'tags'};
+  st=st&&ST[st]?st:CONFIG.defaultStation;
+  return{view:'guest',station:st,zone,src:src==='qr'?'qr':'nfc'};
+}
+const baseUrl=()=>CONFIG.artifactUrl||location.href.split('#')[0];
+const tagHash=(st,z,src)=>st.replace('-','').toLowerCase()+'-'+z+(src==='qr'?'-qr':'');
+
+// ===== Смайлы =====
+const FCOL=['#FF3B30','#FF7A2F','#FFC300','#8BD346','#34C759'];
+function face(r){const m={1:'M15 33 Q24 25 33 33',2:'M16 32 Q24 28 32 32',3:'M16 31 L32 31',4:'M16 29 Q24 34 32 29',5:'M14 28 Q24 38 34 28'}[r];
+  return`<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="${FCOL[r-1]}"/>${r===1?'<path d="M14 17 L20 19 M34 17 L28 19" stroke="#1d1d1f" stroke-width="2.2" stroke-linecap="round"/>':''}<circle cx="17" cy="21" r="2.6" fill="#1d1d1f"/><circle cx="31" cy="21" r="2.6" fill="#1d1d1f"/><path d="${m}" stroke="#1d1d1f" stroke-width="2.6" fill="${r===5?'#fff':'none'}" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+
+function toast(x){const e=document.getElementById('toast');e.textContent=x;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),2200)}
+const $=s=>document.querySelector(s);
+
+// ===== Сохранение отзыва =====
+// claude.ai: db (reviews/<id>, телефон отдельно в contacts/<uid>/items/<id>, видит только владелец); свой хостинг: CONFIG.endpoint
+let chain=Promise.resolve();
+const save=final=>(chain=chain.then(()=>saveReview(final)));   // записи по очереди: уточнение не обгоняет первую запись
+async function saveReview(final){
+  const doc={station:G.station,zone:G.zone,rating:G.r,chips:G.chips.slice(),comment:G.comment.trim().slice(0,600),lang:LANG,src:G.src,t:G.t,
+    status:G.r<=2?'new':'ok',hasContact:!!(G.contact&&G.phone),by:UID||null,device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?'mobile':'desktop'};
+  let ok=false;
+  if(DB){try{
+    if(!G.stored){await DB.doc('reviews/'+G.rid).set(doc);G.stored=true}
+    else await DB.doc('reviews/'+G.rid).update({chips:doc.chips,comment:doc.comment,hasContact:doc.hasContact});
+    if(final&&doc.hasContact&&UID)await DB.doc('contacts/'+UID+'/items/'+G.rid).set({phone:G.phone.slice(0,30),consent:true,t:Date.now(),review:G.rid});
+    ok=true}catch(e){ok=false}}
+  if(!DB&&CONFIG.endpoint){try{await fetch(CONFIG.endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:G.rid,...doc,phone:final&&doc.hasContact?G.phone:''})});ok=true}catch(e){}}
+  G.saveOk=ok;return ok;
+}
+
+// ===== Экран гостя =====
+function guestHead(){
+  const s=ST[G.station],brand=s?s[1]:'Qazaq Oil';
+  return`<div class="bar"><span class="brand" style="--brand:${BRAND_COL[brand]?BRAND_COL[brand][isDark()?1:0]:'var(--accent)'}">${esc(brand)}</span><span class="sp"></span>
+   <span class="lang" role="group" aria-label="Язык / Тіл"><button type="button" data-l="kk" lang="kk" aria-pressed="${LANG==='kk'}">ҚАЗ</button><button type="button" data-l="ru" lang="ru" aria-pressed="${LANG==='ru'}">РУС</button></span></div>
+   <div class="place">${ZIC[G.zone]} <b>${esc(t('z.'+G.zone))}</b> · ${esc(G.station)}${s?' · '+esc(LANG==='kk'?s[3]:s[2]):''}</div>`;
+}
+function renderGuest(){
+  const app=$('#app');app.className='wrap';document.documentElement.lang=LANG;
+  let body='';
+  if(G.step==='rate'){
+    body=`<h1>${esc(t('q.'+G.zone))}</h1>
+     <div class="faces" role="group" aria-label="${esc(t('q.'+G.zone))}">${[1,2,3,4,5].map(r=>`<button type="button" class="face${G.r===r?' sel':''}" data-r="${r}" aria-label="${r} — ${esc(t('face')[r-1])}">${face(r)}<span>${esc(t('face')[r-1])}</span></button>`).join('')}</div>
+     <div class="hint-line">${esc(t('oneTap'))}</div>`;
+  }else if(G.step==='chips'){
+    const list=G.r<=3?CH[G.zone].low:CH[G.zone].high;
+    body=`<div class="card saved"><div class="f">${face(G.r)}</div><div><b>${esc(t('saved'))}</b><div class="small muted">${esc(t('optional'))}</div></div></div>
+     <h2>${esc(G.r<=3?t('whatWrong'):t('whatGood'))}</h2>
+     <div class="chips">${list.map(c=>`<button type="button" class="chip" data-c="${c[0]}" aria-pressed="${G.chips.includes(c[0])}">${esc(LANG==='kk'?c[2]:c[1])}</button>`).join('')}</div>
+     <textarea id="cmt" rows="3" maxlength="600" placeholder="${esc(t('commentPh'))}" aria-label="${esc(t('commentPh'))}">${esc(G.comment)}</textarea>
+     <div class="btns"><button type="button" class="btn" id="send">${esc(t('send'))}</button><button type="button" class="btn sec" id="skip">${esc(t('skip'))}</button></div>`;
+  }else if(G.step==='contact'){
+    const okP=G.phone.replace(/\D/g,'').length>=10&&G.consent;
+    body=`<h1 style="font-size:23px">${esc(t('contactQ'))}</h1>
+     ${G.contact?`<input class="inp" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 7__ ___ __ __" aria-label="${esc(t('phoneLbl'))}" value="${esc(G.phone)}">
+      <label class="check"><input type="checkbox" id="consent" ${G.consent?'checked':''}> <span>${esc(t('consent'))}</span></label>
+      <div class="btns"><button type="button" class="btn" id="sendC" ${okP?'':'disabled'}>${esc(t('send'))}</button><button type="button" class="btn sec" id="noC">${esc(t('noThanks'))}</button></div>`
+     :`<div class="muted">${esc(t('phoneOnly'))}</div><div class="btns"><button type="button" class="btn" id="yesC">${esc(t('yes'))}</button><button type="button" class="btn sec" id="noC">${esc(t('noThanks'))}</button></div>`}`;
+  }else{
+    body=`<div class="thanks"><div class="big" aria-hidden="true">🙏</div><h1>${esc(t('thanks'))}</h1><div class="muted">${esc(t('seen'))}</div>
+      ${G.r<=2&&G.contact&&G.phone?`<span class="pill p-acc">${esc(t('callback'))}</span>`:''}</div>
+     <div class="btns"><button type="button" class="btn sec" id="again">${esc(t('again'))}</button></div>
+     ${G.saveOk===false?`<div class="note">${esc(t('notSaved'))}</div>`:''}`;
+  }
+  app.innerHTML=guestHead()+body;
+}
+document.addEventListener('click',async e=>{
+  const l=e.target.closest('[data-l]');if(l){LANG=l.dataset.l;try{localStorage.setItem('g-lang',LANG)}catch(_){}render();return}
+  if(G.view!=='guest')return;
+  const f=e.target.closest('.face');
+  if(f){G.r=+f.dataset.r;G.chips=[];G.comment='';G.t=Date.now();G.rid=G.t.toString(36)+Math.random().toString(36).slice(2,7);G.stored=null;
+    G.step='chips';renderGuest();toast(t('toastSaved'));save(false);return}
+  const c=e.target.closest('.chip');if(c){const k=c.dataset.c,i=G.chips.indexOf(k);i<0?G.chips.push(k):G.chips.splice(i,1);c.setAttribute('aria-pressed',String(i<0));return}
+  const id=e.target.closest('button')?.id;
+  if(id==='send'||id==='skip'){if(id==='skip'){G.chips=[];G.comment=''}else G.comment=($('#cmt')?.value||'');
+    G.step=G.r<=2?'contact':'thanks';G.contact=null;renderGuest();if(G.step==='thanks'||id==='send')await save(G.step==='thanks');if(G.step==='thanks')renderGuest()}
+  else if(id==='yesC'){G.contact=true;renderGuest();$('#phone')?.focus()}
+  else if(id==='noC'){G.contact=false;G.phone='';G.step='thanks';await save(true);renderGuest()}
+  else if(id==='sendC'){G.step='thanks';await save(true);renderGuest()}
+  else if(id==='again'){Object.assign(G,{step:'rate',r:0,chips:[],comment:'',contact:null,phone:'',consent:false,rid:null,stored:null,saveOk:null});renderGuest()}
+});
+// телефон и согласие: кнопка «Отправить» активна, когда есть 10+ цифр и галочка
+function updContact(e){if(e.target.id!=='phone'&&e.target.id!=='consent')return;G.phone=$('#phone').value;G.consent=$('#consent').checked;const b=$('#sendC');if(b)b.disabled=!(G.phone.replace(/\D/g,'').length>=10&&G.consent)}
+document.addEventListener('input',updContact);document.addEventListener('change',updContact);
+
+// ===== Служебные экраны =====
+function nav(cur){return`<nav class="top-nav" aria-label="Разделы"><a href="#tags" ${cur==='tags'?'aria-current="page"':''}>${esc(t('navTags'))}</a><a href="#results" ${cur==='results'?'aria-current="page"':''}>${esc(t('navRes'))}</a><span class="sp"></span><span class="lang" role="group" aria-label="Язык / Тіл"><button type="button" data-l="kk" lang="kk" aria-pressed="${LANG==='kk'}">ҚАЗ</button><button type="button" data-l="ru" lang="ru" aria-pressed="${LANG==='ru'}">РУС</button></span></nav>`}
+let TAG_ST=(()=>{try{return localStorage.getItem('g-tag-st')||CONFIG.defaultStation}catch(e){return CONFIG.defaultStation}})();
+function qrSvg(text){try{const q=qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount();let p='';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))p+=`M${c} ${r}h1v1h-1z`;return`<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" role="img" aria-label="QR"><path d="${p}" fill="#111"/></svg>`}catch(e){return''}}
+function renderTags(){
+  const app=$('#app');app.className='wrap wide';
+  const s=ST[TAG_ST]||STATIONS[0];
+  app.innerHTML=`${nav('tags')}<div><h1>${esc(t('tagsH'))}</h1><p class="muted" style="margin:6px 0 0;max-width:62ch">${esc(t('tagsSub'))}</p></div>
+   <div class="row"><label for="tagSt" class="small muted">${esc(t('station'))}</label>
+    <select id="tagSt" class="inp" style="max-width:340px">${STATIONS.map(x=>`<option value="${x[0]}" ${x[0]===s[0]?'selected':''}>${x[0]} · ${esc(x[1])} · ${esc(LANG==='kk'?x[3]:x[2])}</option>`).join('')}</select></div>
+   ${CONFIG.artifactUrl?'':`<div class="small muted">${esc(t('noUrl'))}</div>`}
+   <div class="grid">${ZONES.map(z=>{const u=baseUrl()+'#'+tagHash(s[0],z),uq=baseUrl()+'#'+tagHash(s[0],z,'qr');
+     return`<div class="card tag"><div class="row"><span class="ic" aria-hidden="true">${ZIC[z]}</span><h2>${esc(t('z.'+z))}</h2></div>
+      <div class="url" id="u-${z}">${esc(u)}</div>
+      <div class="row"><button type="button" class="mini acc" data-copy="${esc(u)}">${esc(t('copy'))}</button><a class="mini" href="${esc(u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">${esc(t('open'))}</a></div>
+      <div class="qr">${qrSvg(uq)}</div><div class="small muted" style="text-align:center">${esc(t('qrLink'))}</div></div>`}).join('')}</div>
+   <div class="card"><h2>${esc(t('howH'))}</h2><ol class="steps" style="margin-top:8px">${t('how').map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`;
+  $('#tagSt').addEventListener('change',e=>{TAG_ST=e.target.value;try{localStorage.setItem('g-tag-st',TAG_ST)}catch(_){}renderTags()});
+  app.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.copy;
+    navigator.clipboard.writeText(v).then(()=>toast(t('copied')),()=>{const sel=getSelection(),el=b.closest('.tag').querySelector('.url'),r=document.createRange();r.selectNodeContents(el);sel.removeAllRanges();sel.addRange(r);toast(t('copyFail'))})}));
+}
+let REV=[],RZ='all',unsub=null,resState='loading',ISADMIN=false;
+function ago(ms){const k=LANG==='kk',m=Math.max(0,Math.floor(ms/60000));if(m<60)return m+' мин';const h=Math.floor(m/60);if(h<24)return h+(k?' сағ':' ч');return Math.floor(h/24)+(k?' күн':' д')}
+function renderResults(){
+  const app=$('#app');app.className='wrap wide';
+  const list=REV.filter(r=>RZ==='all'||r.zone===RZ);
+  const n=list.length,avg=n?list.reduce((a,r)=>a+r.rating,0)/n:null,low=list.filter(r=>r.rating<=2),open=low.filter(r=>r.status==='new');
+  const byZ=ZONES.map(z=>{const a=REV.filter(r=>r.zone===z);return{z,n:a.length,avg:a.length?a.reduce((s,r)=>s+r.rating,0)/a.length:null}});
+  const col=v=>v==null?'var(--line)':v>=4.4?'var(--good)':v>=4?'var(--warn)':'var(--bad)';
+  let content='';
+  if(resState==='nodb')content=`<div class="card empty">${esc(t('noDb'))}</div>`;
+  else if(resState==='loading')content=`<div class="card empty">${esc(t('loading'))}</div>`;
+  else content=`<div class="kpis"><div class="card kpi"><div class="l">${esc(t('total'))}</div><div class="v">${n}</div></div>
+     <div class="card kpi"><div class="l">${esc(t('avg'))}</div><div class="v" style="color:${col(avg)}">${avg?fmt1(avg):'—'}</div></div>
+     <div class="card kpi"><div class="l">${esc(t('low'))}</div><div class="v">${low.length}</div></div>
+     <div class="card kpi"><div class="l">${esc(t('open1'))}</div><div class="v" style="color:${open.length?'var(--bad)':'inherit'}">${open.length}</div></div></div>
+    <div class="card"><h2 style="margin-bottom:8px">${esc(t('byZone'))}</h2>${byZ.map(x=>`<div class="zbar"><span>${ZIC[x.z]} ${esc(t('z.'+x.z))}</span><div class="track"><i style="width:${x.avg?(x.avg-1)/4*100:0}%;background:${col(x.avg)}"></i></div><span class="small" style="text-align:right">${x.avg?fmt1(x.avg)+' ★':'—'} · ${x.n}</span></div>`).join('')}</div>
+    <div class="card"><div class="row" style="margin-bottom:6px"><h2>${esc(t('feed'))}</h2><span class="sp"></span><div class="seg" role="group">${['all',...ZONES].map(z=>`<button type="button" data-rz="${z}" aria-pressed="${RZ===z}">${z==='all'?esc(t('all')):ZIC[z]+' '+esc(t('z.'+z))}</button>`).join('')}</div></div>
+     ${list.length?`<div class="list">${list.slice(0,100).map(r=>`<div class="rv"><div class="f">${face(r.rating)}</div><div style="min-width:0"><b>${esc(r.station)} · ${esc(t('z.'+r.zone))}</b> ${r.rating<=2?`<span class="pill ${r.status==='new'?'p-bad':'p-good'}">${esc(r.status==='new'?'1–2':t('done'))}</span>`:''}
+       <div class="meta">${new Date(r.t).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${ago(Date.now()-r.t)} ${esc(t('ago'))} · ${esc((t('src')||{})[r.src]||r.src)} · ${esc(r.lang||'')}</div>
+       <div class="small">${(r.chips||[]).map(k=>esc(chipName(r.zone,k,LANG))).join(', ')||`<span class="muted">${esc(t('noReasons'))}</span>`}${r.comment?' · «'+esc(r.comment)+'»':''}</div>
+       <div class="small" id="ph-${r.id}"></div></div>
+       <div class="row" style="justify-content:flex-end">${r.hasContact&&ISADMIN?`<button type="button" class="mini" data-ph="${r.id}">📞 ${esc(t('showPhone'))}</button>`:''}${r.rating<=2&&r.status==='new'?`<button type="button" class="mini acc" data-done="${r.id}">${esc(t('markDone'))}</button>`:''}</div></div>`).join('')}</div>`:`<div class="empty">${esc(t('empty'))}</div>`}</div>`;
+  app.innerHTML=`${nav('results')}<div><h1>${esc(t('resH'))}</h1><p class="muted" style="margin:6px 0 0">${esc(t('resSub'))}</p></div>${content}`;
+  app.querySelectorAll('[data-rz]').forEach(b=>b.addEventListener('click',()=>{RZ=b.dataset.rz;renderResults()}));
+  app.querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{b.disabled=true;try{await DB.doc('reviews/'+b.dataset.done).update({status:'done',doneAt:Date.now()})}catch(e){b.disabled=false}}));
+  app.querySelectorAll('[data-ph]').forEach(b=>b.addEventListener('click',async()=>{const r=REV.find(x=>x.id===b.dataset.ph),el=$('#ph-'+r.id);
+    try{const s=await DB.doc('contacts/'+r.by+'/items/'+r.id).get();el.textContent=s.exists?'📞 '+s.data().phone:t('noPhone')}catch(e){el.textContent=t('noPhone')}}));
+}
+function subscribeResults(){
+  if(unsub||!DB)return;
+  const timer=setTimeout(()=>{if(resState==='loading'){resState='nodb';if(G.view==='results')renderResults()}},10000);
+  unsub=DB.collection('reviews').orderBy('t','desc').limit(500).onSnapshot(snap=>{clearTimeout(timer);REV=snap.docs.map(d=>({id:d.id,...d.data()}));resState='ok';if(G.view==='results')renderResults()},
+    ()=>{clearTimeout(timer);resState='nodb';if(G.view==='results')renderResults()});
+}
+
+// ===== Маршрут =====
+function render(){
+  const r=parseRoute();G.view=r.view;document.documentElement.lang=LANG;
+  if(r.view==='guest'){if(G.station!==r.station||G.zone!==r.zone){Object.assign(G,{station:r.station,zone:r.zone,src:r.src,step:'rate',r:0,chips:[],comment:'',contact:null,phone:'',consent:false,rid:null,stored:null,saveOk:null})}renderGuest()}
+  else if(r.view==='tags')renderTags();
+  else if(r.view==='results'){if(!DB&&resState==='loading'&&DB_READY)resState='nodb';subscribeResults();renderResults()}
+  else{$('#app').className='wrap';$('#app').innerHTML=`<div class="card empty">${esc(t('nostation'))}</div>`}
+}
+window.addEventListener('hashchange',render);
+let DB_READY=false;
+render();
+// возможности claude.ai: база отзывов и id пользователя (для отдельного хранения телефона)
+(async()=>{
+  if(window.claude&&typeof window.claude.use==='function'){
+    try{DB=await window.claude.use('db')}catch(e){DB=null}
+    try{USER=await window.claude.use('user');if(USER){UID=await USER.id();ISADMIN=await USER.canEdit()}}catch(e){}
+  }
+  DB_READY=true;
+  if(G.view==='results'){if(!DB)resState='nodb';else subscribeResults();renderResults()}
+})();
+</script>
+</body></html>
